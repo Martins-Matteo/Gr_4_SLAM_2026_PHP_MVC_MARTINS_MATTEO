@@ -1,0 +1,102 @@
+CREATE DATABASE IF NOT EXISTS gsbV2
+DEFAULT CHARACTER SET utf8mb4
+DEFAULT COLLATE utf8mb4_general_ci;
+
+USE gsbV2;
+
+DROP TABLE IF EXISTS LigneFraisHorsForfait;
+DROP TABLE IF EXISTS LigneFraisForfait;
+DROP TABLE IF EXISTS FicheFrais;
+DROP TABLE IF EXISTS Visiteur;
+DROP TABLE IF EXISTS Comptable;
+DROP TABLE IF EXISTS Administrateur;
+DROP TABLE IF EXISTS Etat;
+DROP TABLE IF EXISTS FraisForfait;
+
+CREATE TABLE FraisForfait (
+ id CHAR(3) NOT NULL,
+ libelle VARCHAR(100) NOT NULL,
+ montant DECIMAL(10,2) NOT NULL,
+ PRIMARY KEY (id)
+) ENGINE=InnoDB;
+
+CREATE TABLE Etat (
+ id CHAR(2) NOT NULL,
+ libelle VARCHAR(30) NOT NULL,
+ PRIMARY KEY (id)
+) ENGINE=InnoDB;
+
+CREATE TABLE Visiteur (
+ id VARCHAR(4) NOT NULL,
+ nom VARCHAR(30) NOT NULL,
+ prenom VARCHAR(30) NOT NULL,
+ login VARCHAR(20) NOT NULL,
+ mdp VARCHAR(60) NOT NULL,
+ adresse VARCHAR(100) NOT NULL,
+ cp CHAR(5) NOT NULL,
+ ville VARCHAR(50) NOT NULL,
+ dateEmbauche DATE NOT NULL,
+ PRIMARY KEY (id)
+) ENGINE=InnoDB;
+
+CREATE TABLE FicheFrais (
+ idVisiteur VARCHAR(4) NOT NULL,
+ mois CHAR(6) NOT NULL,
+ nbJustificatifs INT NOT NULL DEFAULT 0,
+ montantValide DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+ dateModif DATE NOT NULL,
+ idEtat CHAR(2) NOT NULL,
+ PRIMARY KEY (idVisiteur, mois),
+ FOREIGN KEY (idVisiteur) REFERENCES Visiteur(id),
+ FOREIGN KEY (idEtat) REFERENCES Etat(id)
+) ENGINE=InnoDB;
+
+CREATE TABLE LigneFraisForfait (
+ idVisiteur VARCHAR(4) NOT NULL,
+ mois CHAR(6) NOT NULL,
+ idFraisForfait CHAR(3) NOT NULL,
+ quantite INT NOT NULL DEFAULT 0,
+ PRIMARY KEY (idVisiteur, mois, idFraisForfait),
+ FOREIGN KEY (idVisiteur, mois) REFERENCES FicheFrais(idVisiteur, mois),
+ FOREIGN KEY (idFraisForfait) REFERENCES FraisForfait(id)
+) ENGINE=InnoDB;
+
+CREATE TABLE LigneFraisHorsForfait (
+ id INT AUTO_INCREMENT NOT NULL,
+ idVisiteur VARCHAR(4) NOT NULL,
+ mois CHAR(6) NOT NULL,
+ libelle VARCHAR(100) NOT NULL,
+ date DATE NOT NULL,
+ montant DECIMAL(10,2) NOT NULL,
+ PRIMARY KEY (id),
+ FOREIGN KEY (idVisiteur, mois) REFERENCES FicheFrais(idVisiteur, mois)
+) ENGINE=InnoDB;
+
+CREATE TABLE Comptable (
+ id VARCHAR(4) NOT NULL,
+ nom VARCHAR(30) NOT NULL,
+ prenom VARCHAR(30) NOT NULL,
+ login VARCHAR(20) NOT NULL,
+ mdp VARCHAR(60) NOT NULL,
+ adresse VARCHAR(100) NOT NULL,
+ cp CHAR(5) NOT NULL,
+ ville VARCHAR(50) NOT NULL,
+ dateEmbauche DATE NOT NULL,
+ PRIMARY KEY (id)
+) ENGINE=InnoDB;
+
+CREATE TABLE Administrateur (
+ id VARCHAR(4) NOT NULL,
+ nom VARCHAR(30) NOT NULL,
+ prenom VARCHAR(30) NOT NULL,
+ login VARCHAR(20) NOT NULL,
+ mdp VARCHAR(60) NOT NULL,
+ adresse VARCHAR(100) NOT NULL,
+ cp CHAR(5) NOT NULL,
+ ville VARCHAR(50) NOT NULL,
+ dateEmbauche DATE NOT NULL,
+ PRIMARY KEY (id)
+) ENGINE=InnoDB;
+
+SHOW TABLES;
+
