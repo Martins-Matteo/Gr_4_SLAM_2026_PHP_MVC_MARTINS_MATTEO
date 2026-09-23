@@ -1,0 +1,350 @@
+:root{
+  --green-700: #668548;
+  --green-400: #9EC975;
+  --cream: #F5E5A6;
+  --peach: #E09770;
+  --brick: #C25D27;
+
+  --bg-gradient: linear-gradient(135deg, var(--green-700) 0%, var(--green-400) 40%, var(--cream) 100%);
+  --accent-gradient: linear-gradient(90deg, var(--peach), var(--brick));
+
+  --surface: rgba(255,255,255,0.95);
+  --muted: #46533a;
+  --radius: 12px;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: var(--bg-gradient);
+  color: var(--muted);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 1rem;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--surface);
+  color: var(--green-700);
+  padding: 1rem 1.1rem;
+  border-radius: var(--radius);
+  box-shadow: 0 12px 40px rgba(24, 40, 10, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  min-width: 0;
+}
+
+.header .logo {
+  height: 56px;
+  width: auto;
+  border-radius: 8px;
+  object-fit: contain;
+}
+
+.eyebrow {
+  margin-bottom: 0.25rem;
+  color: #49653d;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 1.45rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-left: auto;
+}
+
+.deconnexion {
+  background: var(--accent-gradient);
+  color: white;
+  padding: 0.65rem 1.4rem;
+  border-radius: 999px;
+  cursor: pointer;
+  border: none;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 8px 22px rgba(194,93,39,0.18);
+  transition: transform 140ms ease, box-shadow 140ms ease, opacity 140ms ease;
+  letter-spacing: 0.3px;
+}
+
+.deconnexion:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 40px rgba(194,93,39,0.26);
+}
+
+.deconnexion:active {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px rgba(194,93,39,0.18);
+}
+
+/* Menu Dropdown */
+.menu-dropdown {
+  position: relative;
+  width: fit-content;
+  margin-bottom: 1rem;
+}
+
+.dropdown-btn {
+  background: white;
+  color: var(--green-700);
+  padding: 0.55rem 1rem;
+  border: 2px solid var(--green-700);
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 700;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+}
+
+.dropdown-btn:hover,
+.dropdown-btn:focus-visible {
+  background: var(--green-700);
+  color: white;
+  outline: none;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: white;
+  min-width: 165px;
+  max-width: 270px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  padding: 0.15rem 0;
+  z-index: 1000;
+  border-radius: var(--radius);
+  top: calc(100% - 2px);
+  left: 0;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.dropdown-content a {
+  color: var(--muted);
+  padding: 0.55rem 0.9rem;
+  text-decoration: none;
+  display: block;
+  width: 100%;
+  font-weight: 600;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.dropdown-content a:hover,
+.dropdown-content a.active {
+  background: var(--green-700);
+  color: white;
+}
+
+.menu-dropdown:hover .dropdown-content,
+.menu-dropdown:focus-within .dropdown-content {
+  display: block;
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Consultation Section */
+.consultation_frais {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  max-width: 600px;
+  width: 100%;
+}
+
+.consultation_frais > div {
+  background: var(--surface);
+  padding: 1.5rem;
+  border-radius: var(--radius);
+  box-shadow: 0 12px 40px rgba(24,40,10,0.08);
+  border: 1px solid rgba(0,0,0,0.06);
+}
+
+.consultation_frais label {
+  display: block;
+  font-size: 1rem;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.consultation_frais select {
+  width: 100%;
+  padding: 0.75rem 0.8rem;
+  border-radius: 8px;
+  border: 1px solid rgba(0,0,0,0.08);
+  background: white;
+  font-size: 1rem;
+  color: var(--muted);
+  cursor: pointer;
+  transition: border-color 300ms ease;
+}
+
+.consultation_frais select:focus {
+  outline: none;
+  border-color: var(--green-700);
+  box-shadow: 0 0 8px rgba(102, 133, 72, 0.1);
+}
+
+.etat-static {
+  font-size: 1rem;
+  padding: 0.75rem 0.8rem;
+  background: #f9f9f9;
+  border-radius: 8px;
+  border: 1px solid rgba(0,0,0,0.08);
+  color: var(--muted);
+  font-weight: 500;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+}
+
+.total_frais {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.total-amount {
+  background: linear-gradient(90deg, var(--green-400), var(--green-700));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: 700;
+  font-size: 1.3rem;
+}
+
+/* Footer */
+.footer {
+  width: 100%;
+  text-align: center;
+  padding: 1.1rem 1rem 2rem;
+  color: rgba(0, 0, 0, 0.55);
+  font-size: 0.9rem;
+  margin-top: 1rem;
+}
+
+.footer a {
+  color: var(--brick);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+  opacity: 0.95;
+}
+
+/* Accessibility */
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 3px solid rgba(102, 133, 72, 0.15);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+/* Reduce Motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  body {
+    padding: 0.5rem;
+  }
+
+  .header {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .header h1 {
+    font-size: 1.5rem;
+  }
+
+  .dropdown-btn {
+    width: 100%;
+  }
+
+  .consultation_frais {
+    max-width: 100%;
+  }
+
+  .consultation_frais > div {
+    padding: 1rem;
+  }
+
+  .consultation_frais label {
+    font-size: 0.95rem;
+  }
+
+  .consultation_frais select {
+    font-size: 0.95rem;
+    padding: 0.65rem;
+  }
+
+  .etat-static {
+    font-size: 0.95rem;
+  }
+
+  .total-amount {
+    font-size: 1.1rem;
+  }
+}

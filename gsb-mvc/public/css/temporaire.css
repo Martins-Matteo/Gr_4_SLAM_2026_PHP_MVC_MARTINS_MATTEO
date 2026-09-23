@@ -1,0 +1,210 @@
+:root{
+  --green-700: #668548;
+  --green-400: #9EC975;
+  --cream: #F5E5A6;
+  --peach: #E09770;
+  --brick: #C25D27;
+
+  --bg-gradient: linear-gradient(135deg, var(--green-700) 0%, var(--green-400) 40%, var(--cream) 100%);
+  --accent-gradient: linear-gradient(90deg, var(--peach), var(--brick));
+
+  --surface: rgba(255,255,255,0.95);
+  --muted: #46533a;
+  --radius: 12px;
+
+  /* semantic mappings */
+  --bg: var(--bg-gradient);
+  --card: var(--surface);
+  --primary: var(--green-700);
+  --accent: var(--peach);
+  --text: #2b3a2a;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+body {
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.125rem 1.25rem;
+  background: var(--card);
+  box-shadow: 0 12px 40px rgba(24, 40, 10, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: var(--radius);
+  margin: 1rem;
+}
+
+.header .logo {
+  height: 56px;
+  width: auto;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.header h1 {
+  flex: 1;
+  text-align: center;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--green-700);
+  margin: 0;
+}
+
+.deconnexion {
+  background: var(--accent-gradient);
+  color: #fff;
+  padding: 0.65rem 1.4rem;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 8px 22px rgba(194, 93, 39, 0.18);
+  transition: transform 140ms ease, box-shadow 140ms ease, opacity 140ms ease;
+  letter-spacing: 0.3px;
+}
+
+.deconnexion:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 40px rgba(194, 93, 39, 0.26);
+}
+
+.deconnexion:active {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px rgba(194, 93, 39, 0.18);
+}
+
+/* Content section */
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  gap: 2rem;
+}
+
+.content h1 {
+  font-size: clamp(1.6rem, 4vw, 2.5rem);
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  text-align: center;
+  background: var(--green-700);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  margin-bottom: 1rem;
+}
+
+.content h1::after {
+  content: "";
+  display: block;
+  height: 6px;
+  width: 64px;
+  margin: 10px auto 0;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--green-400), var(--green-700));
+}
+
+.content {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  max-width: 600px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.content a {
+  background: var(--card);
+  color: var(--green-700);
+  padding: 1.5rem 2rem;
+  border-radius: var(--radius);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1rem;
+  text-align: center;
+  border: 2px solid var(--green-700);
+  box-shadow: 0 12px 40px rgba(24, 40, 10, 0.08);
+  transition: all 300ms ease;
+  letter-spacing: 0.3px;
+}
+
+.content a:hover {
+  background: var(--green-700);
+  color: white;
+  transform: translateY(-4px);
+  box-shadow: 0 18px 40px rgba(102, 133, 72, 0.18);
+}
+
+.content a:active {
+  transform: translateY(-2px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+    margin: 0.5rem;
+  }
+
+  .header h1 {
+    font-size: 1rem;
+  }
+
+  .content {
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .content h1 {
+    font-size: 1.5rem;
+  }
+
+  .content a {
+    padding: 1rem 1.5rem;
+    font-size: 0.95rem;
+  }
+}
+
+/* Accessibility */
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 3px solid rgba(102, 133, 72, 0.15);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+/* Reduce motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}
