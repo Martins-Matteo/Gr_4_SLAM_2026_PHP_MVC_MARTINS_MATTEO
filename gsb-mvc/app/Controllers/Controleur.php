@@ -54,6 +54,13 @@ class Controleur extends BaseController
         // ---------- actions reservees au comptable ----------
         $actionsComptable = ['comptable', 'comptableFiche', 'validerFiche', 'rembourserFiche'];
 
+        // ---------- actions reservees a l'administrateur ----------
+        $actionsAdmin = ['admin', 'adminFormulaire', 'adminEnregistrer', 'adminSupprimer'];
+
+        if (in_array($action, $actionsAdmin, true) && $role !== 'administrateur') {
+            return $this->accesRefuse();
+        }
+
         if (in_array($action, $actionsVisiteur, true) && $role !== 'visiteur') {
             return $this->accesRefuse();
         }
@@ -95,6 +102,19 @@ class Controleur extends BaseController
             case 'rembourserFiche':
                 return $this->rembourserFiche();
 
+            // --- administrateur ---
+            case 'admin':
+                return $this->admin();
+
+            case 'adminFormulaire':
+                return $this->adminFormulaire();
+
+            case 'adminEnregistrer':
+                return $this->adminEnregistrer();
+
+            case 'adminSupprimer':
+                return $this->adminSupprimer();
+
             // --- page d'accueil selon le role ---
             default:
                 if ($role === 'comptable') {
@@ -102,7 +122,7 @@ class Controleur extends BaseController
                 }
 
                 if ($role === 'administrateur') {
-                    return $this->accesRefuse("L'espace administrateur n'est pas encore disponible dans cette version.");
+                    return $this->admin();
                 }
 
                 return $this->accueil();
@@ -164,7 +184,7 @@ class Controleur extends BaseController
         }
 
         if ($utilisateur['role'] === 'administrateur') {
-            return $this->accesRefuse("L'espace administrateur n'est pas encore disponible dans cette version.");
+            return $this->admin();
         }
 
         return $this->accueil();
@@ -546,6 +566,151 @@ class Controleur extends BaseController
     }
 
     // =================================================================
+    // ESPACE ADMINISTRATEUR : GESTION DES COMPTES
+    // =================================================================
+
+    /**
+     * Liste des comptes du type demande (visiteur, comptable ou
+     * administrateur), avec le formulaire de creation ou de modification.
+     */
+    public function admin($message = '', $erreur = '', $compte = null)
+    {
+        $type = $this->typeDemande();
+
+        $Modele = new \App\Models\Modele();
+
+        $donnees = [
+            'comptes' => $Modele->getComptes($type),
+            'types'   => [
+                'visiteur'       => 'Visiteurs médicaux',
+                'comptable'      => 'Comptables',
+                'administrateur' => 'Administrateurs',
+            ],
+        ];
+
+        $data['resultat'] = $donnees;
+        $data['type']     = $type;
+        $data['compte']   = $compte;
+        $data['message']  = $message;
+        $data['erreur']   = $erreur;
+
+        return view('vueAdmin', $data);
+    }
+
+    /**
+     * Charge un compte existant dans le formulaire de modification.
+     */
+    public function adminFormulaire()
+    {
+        $type = $this->typeDemande();
+        $id   = (string) ($this->request->getGet('compte') ?? '');
+
+        $Modele = new \App\Models\Modele();
+        $compte = $Modele->getCompte($type, $id);
+
+        if ($compte === null) {
+            return $this->admin('', 'Ce compte est introuvable.');
+        }
+
+        // marque le formulaire comme une modification
+        $compte['idOrigine'] = $compte['id'];
+
+        return $this->admin('', '', $compte);
+    }
+
+    /**
+     * Creation ou modification d'un compte, apres controle des saisies.
+     */
+    public function adminEnregistrer()
+    {
+        $type      = $this->typeDemande();
+        $idOrigine = trim((string) $this->request->getPost('idOrigine'));
+
+        $donnees = [
+            'id'           => trim((string) $this->request->getPost('id')),
+            'nom'          => trim((string) $this->request->getPost('nom')),
+            'prenom'       => trim((string) $this->request->getPost('prenom')),
+            'login'        => trim((string) $this->request->getPost('login')),
+            'mdp'          => (string) $this->request->getPost('mdp'),
+            'adresse'      => trim((string) $this->request->getPost('adresse')),
+            'cp'           => trim((string) $this->request->getPost('cp')),
+            'ville'        => trim((string) $this->request->getPost('ville')),
+            'dateEmbauche' => trim((string) $this->request->getPost('dateEmbauche')),
+        ];
+
+        // ---------- controles de saisie ----------
+        foreach (['id', 'nom', 'prenom', 'login', 'adresse', 'cp', 'ville', 'dateEmbauche'] as $champ) {
+            if ($donnees[$champ] === '') {
+                return $this->admin('', 'Tous les champs sont obligatoires, sauf le mot de passe lors d\'une modification.', $donnees);
+            }
+        }
+
+        if (mb_strlen($donnees['id']) > 4) {
+            return $this->admin('', "L'identifiant ne peut pas dépasser 4 caractères.", $donnees);
+        }
+
+        if (mb_strlen($donnees['login']) > 20) {
+            return $this->admin('', 'Le login ne peut pas dépasser 20 caractères.', $donnees);
+        }
+
+        if (! preg_match('/^[0-9]{5}$/', $donnees['cp'])) {
+            return $this->admin('', 'Le code postal doit comporter 5 chiffres.', $donnees);
+        }
+
+        if (\DateTime::createFromFormat('Y-m-d', $donnees['dateEmbauche']) === false) {
+            return $this->admin('', "La date d'embauche est invalide.", $donnees);
+        }
+
+        if ($idOrigine === '' && $donnees['mdp'] === '') {
+            return $this->admin('', 'Le mot de passe est obligatoire à la création d\'un compte.', $donnees);
+        }
+
+        $Modele = new \App\Models\Modele();
+
+        try {
+            if ($idOrigine === '') {
+                $Modele->creerCompte($type, $donnees);
+                $message = 'Le compte a été créé.';
+            } else {
+                $Modele->modifierCompte($type, $idOrigine, $donnees);
+                $message = 'Le compte a été modifié.';
+            }
+        } catch (\Throwable $e) {
+            return $this->admin('', 'Enregistrement impossible : cet identifiant ou ce login est déjà utilisé.', $donnees);
+        }
+
+        return $this->admin($message);
+    }
+
+    /**
+     * Suppression d'un compte.
+     */
+    public function adminSupprimer()
+    {
+        $type = $this->typeDemande();
+        $id   = (string) $this->request->getPost('compte');
+
+        // un administrateur ne peut pas supprimer son propre compte
+        if ($type === 'administrateur' && $id === session()->get('id')) {
+            return $this->admin('', 'Vous ne pouvez pas supprimer votre propre compte.');
+        }
+
+        $Modele = new \App\Models\Modele();
+
+        try {
+            $nb = $Modele->supprimerCompte($type, $id);
+        } catch (\Throwable $e) {
+            return $this->admin('', 'Suppression impossible : des données liées existent encore.');
+        }
+
+        if ($nb === 0) {
+            return $this->admin('', 'Ce compte est introuvable.');
+        }
+
+        return $this->admin('Le compte a été supprimé.');
+    }
+
+    // =================================================================
     // PAGES DIVERSES
     // =================================================================
     public function mentions()
@@ -581,6 +746,21 @@ class Controleur extends BaseController
         }
 
         return date('Ym');
+    }
+
+    /**
+     * Renvoie le type de compte demande dans l'espace administrateur,
+     * apres controle : visiteur par defaut.
+     */
+    private function typeDemande()
+    {
+        $type = $this->request->getPost('type') ?? $this->request->getGet('type') ?? '';
+
+        if (in_array($type, ['visiteur', 'comptable', 'administrateur'], true)) {
+            return $type;
+        }
+
+        return 'visiteur';
     }
 
     /**

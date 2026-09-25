@@ -321,4 +321,173 @@ class Modele extends Model
 
         return $db->affectedRows();
     }
+
+    // =================================================================
+    // GESTION DES UTILISATEURS (ESPACE ADMINISTRATEUR)
+    // Ces fonctions utilisent la connexion "admin" (compte MySQL
+    // gsb_admin_app), seul habilite a ecrire dans les tables des comptes.
+    // =================================================================
+
+    /**
+     * Renvoie le nom reel de la table correspondant a un type de compte.
+     * Liste blanche : aucun nom de table ne vient directement de l'utilisateur.
+     */
+    private function tableUtilisateur($type)
+    {
+        $tables = [
+            'visiteur'       => 'Visiteur',
+            'comptable'      => 'Comptable',
+            'administrateur' => 'Administrateur',
+        ];
+
+        return $tables[$type] ?? null;
+    }
+
+    /**
+     * Liste des comptes d'un type donne.
+     */
+    public function getComptes($type)
+    {
+        $table = $this->tableUtilisateur($type);
+
+        if ($table === null) {
+            return [];
+        }
+
+        $db = db_connect('admin');
+
+        $sql = 'SELECT id, nom, prenom, login, adresse, cp, ville, dateEmbauche
+                FROM ' . $table . ' ORDER BY nom, prenom';
+
+        return $db->query($sql)->getResultArray();
+    }
+
+    /**
+     * Un compte precis, pour le formulaire de modification.
+     */
+    public function getCompte($type, $id)
+    {
+        $table = $this->tableUtilisateur($type);
+
+        if ($table === null) {
+            return null;
+        }
+
+        $db = db_connect('admin');
+
+        $sql = 'SELECT id, nom, prenom, login, adresse, cp, ville, dateEmbauche
+                FROM ' . $table . ' WHERE id = ?';
+
+        $resultat = $db->query($sql, [$id])->getResultArray();
+
+        return count($resultat) === 1 ? $resultat[0] : null;
+    }
+
+    /**
+     * Creation d'un compte. Le mot de passe est hache avant enregistrement.
+     */
+    public function creerCompte($type, $donnees)
+    {
+        $table = $this->tableUtilisateur($type);
+
+        if ($table === null) {
+            return false;
+        }
+
+        $db = db_connect('admin');
+
+        $sql = 'INSERT INTO ' . $table . ' (id, nom, prenom, login, mdp, adresse, cp, ville, dateEmbauche)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+
+        $db->query($sql, [
+            $donnees['id'],
+            $donnees['nom'],
+            $donnees['prenom'],
+            $donnees['login'],
+            password_hash($donnees['mdp'], PASSWORD_DEFAULT),
+            $donnees['adresse'],
+            $donnees['cp'],
+            $donnees['ville'],
+            $donnees['dateEmbauche'],
+        ]);
+
+        return $db->affectedRows();
+    }
+
+    /**
+     * Modification d'un compte. Le mot de passe n'est change que s'il a
+     * ete saisi dans le formulaire.
+     */
+    public function modifierCompte($type, $idOrigine, $donnees)
+    {
+        $table = $this->tableUtilisateur($type);
+
+        if ($table === null) {
+            return false;
+        }
+
+        $db = db_connect('admin');
+
+        if ($donnees['mdp'] !== '') {
+            $sql = 'UPDATE ' . $table . '
+                    SET id = ?, nom = ?, prenom = ?, login = ?, mdp = ?,
+                        adresse = ?, cp = ?, ville = ?, dateEmbauche = ?
+                    WHERE id = ?';
+
+            $parametres = [
+                $donnees['id'], $donnees['nom'], $donnees['prenom'], $donnees['login'],
+                password_hash($donnees['mdp'], PASSWORD_DEFAULT),
+                $donnees['adresse'], $donnees['cp'], $donnees['ville'], $donnees['dateEmbauche'],
+                $idOrigine,
+            ];
+        } else {
+            $sql = 'UPDATE ' . $table . '
+                    SET id = ?, nom = ?, prenom = ?, login = ?,
+                        adresse = ?, cp = ?, ville = ?, dateEmbauche = ?
+                    WHERE id = ?';
+
+            $parametres = [
+                $donnees['id'], $donnees['nom'], $donnees['prenom'], $donnees['login'],
+                $donnees['adresse'], $donnees['cp'], $donnees['ville'], $donnees['dateEmbauche'],
+                $idOrigine,
+            ];
+        }
+
+        $db->query($sql, $parametres);
+
+        return $db->affectedRows();
+    }
+
+    /**
+     * Suppression d'un compte. Pour un visiteur, la base supprime
+     * automatiquement ses fiches de frais (cles etrangeres ON DELETE CASCADE).
+     */
+    public function supprimerCompte($type, $id)
+    {
+        $table = $this->tableUtilisateur($type);
+
+        if ($table === null) {
+            return 0;
+        }
+
+        $db = db_connect('admin');
+
+        $sql = 'DELETE FROM ' . $table . ' WHERE id = ?';
+        $db->query($sql, [$id]);
+
+        return $db->affectedRows();
+    }
+
+    /**
+     * Nombre de fiches de frais liees a un visiteur (avertissement avant
+     * suppression).
+     */
+    public function compterFiches($idVisiteur)
+    {
+        $db = db_connect('admin');
+
+        $sql = 'SELECT COUNT(*) AS nb FROM FicheFrais WHERE idVisiteur = ?';
+
+        return (int) $db->query($sql, [$idVisiteur])->getResultArray()[0]['nb'];
+    }
 }

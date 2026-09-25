@@ -51,6 +51,41 @@ class Database extends Config
         ],
     ];
 
+    /**
+     * Connexion utilisee uniquement par l'espace administrateur.
+     * Le compte MySQL gsb_admin_app est le seul a pouvoir creer, modifier
+     * et supprimer des comptes utilisateurs (principe du moindre privilege).
+     * Les valeurs reelles sont definies dans le fichier .env.
+     *
+     * @var array<string, mixed>
+     */
+    public array $admin = [
+        'DSN'          => '',
+        'hostname'     => 'localhost',
+        'username'     => '',
+        'password'     => '',
+        'database'     => '',
+        'DBDriver'     => 'MySQLi',
+        'DBPrefix'     => '',
+        'pConnect'     => false,
+        'DBDebug'      => true,
+        'charset'      => 'utf8mb4',
+        'DBCollat'     => 'utf8mb4_general_ci',
+        'swapPre'      => '',
+        'encrypt'      => false,
+        'compress'     => false,
+        'strictOn'     => false,
+        'failover'     => [],
+        'port'         => 3306,
+        'numberNative' => false,
+        'foundRows'    => false,
+        'dateFormat'   => [
+            'date'     => 'Y-m-d',
+            'datetime' => 'Y-m-d H:i:s',
+            'time'     => 'H:i:s',
+        ],
+    ];
+
     //    /**
     //     * Sample database connection for SQLite3.
     //     *
