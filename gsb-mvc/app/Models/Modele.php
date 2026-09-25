@@ -217,4 +217,108 @@ class Modele extends Model
 
         return $db->affectedRows();
     }
+
+    // =================================================================
+    // SUIVI DES FICHES (ESPACE COMPTABLE)
+    // =================================================================
+
+    /**
+     * Renvoie la liste des etats possibles d'une fiche de frais.
+     */
+    public function getEtats()
+    {
+        $db = db_connect();
+
+        $sql = 'SELECT id, libelle FROM Etat ORDER BY libelle';
+
+        return $db->query($sql)->getResultArray();
+    }
+
+    /**
+     * Renvoie la liste des visiteurs medicaux (pour le filtre du comptable).
+     */
+    public function getVisiteurs()
+    {
+        $db = db_connect();
+
+        $sql = 'SELECT id, nom, prenom FROM Visiteur ORDER BY nom, prenom';
+
+        return $db->query($sql)->getResultArray();
+    }
+
+    /**
+     * Renvoie la liste des fiches de frais de tous les visiteurs, avec le
+     * montant total calcule (forfait + hors forfait).
+     * Les deux filtres sont facultatifs : chaine vide = pas de filtre.
+     */
+    public function getFiches($idVisiteur = '', $idEtat = '')
+    {
+        $db = db_connect();
+
+        $sql = 'SELECT f.idVisiteur, f.mois, f.nbJustificatifs, f.montantValide,
+                       f.dateModif, f.idEtat, e.libelle AS libelleEtat,
+                       v.nom, v.prenom,
+                       COALESCE((SELECT SUM(ff.montant * l.quantite)
+                                 FROM LigneFraisForfait AS l
+                                 JOIN FraisForfait AS ff ON ff.id = l.idFraisForfait
+                                 WHERE l.idVisiteur = f.idVisiteur AND l.mois = f.mois), 0)
+                     + COALESCE((SELECT SUM(h.montant)
+                                 FROM LigneFraisHorsForfait AS h
+                                 WHERE h.idVisiteur = f.idVisiteur AND h.mois = f.mois), 0)
+                       AS montantTotal
+                FROM FicheFrais AS f
+                JOIN Etat AS e ON e.id = f.idEtat
+                JOIN Visiteur AS v ON v.id = f.idVisiteur
+                WHERE (? = \'\' OR f.idVisiteur = ?)
+                  AND (? = \'\' OR f.idEtat = ?)
+                ORDER BY f.mois DESC, v.nom, v.prenom';
+
+        return $db->query($sql, [$idVisiteur, $idVisiteur, $idEtat, $idEtat])->getResultArray();
+    }
+
+    /**
+     * Renvoie l'identite d'un visiteur.
+     */
+    public function getVisiteur($idVisiteur)
+    {
+        $db = db_connect();
+
+        $sql = 'SELECT id, nom, prenom, login, ville FROM Visiteur WHERE id = ?';
+        $resultat = $db->query($sql, [$idVisiteur])->getResultArray();
+
+        return count($resultat) === 1 ? $resultat[0] : null;
+    }
+
+    /**
+     * Change l'etat d'une fiche de frais et enregistre le montant valide
+     * ainsi que le nombre de justificatifs retenus.
+     */
+    public function majEtatFiche($idVisiteur, $mois, $idEtat, $montantValide, $nbJustificatifs)
+    {
+        $db = db_connect();
+
+        $sql = 'UPDATE FicheFrais
+                SET idEtat = ?, montantValide = ?, nbJustificatifs = ?, dateModif = CURDATE()
+                WHERE idVisiteur = ? AND mois = ?';
+
+        $db->query($sql, [$idEtat, $montantValide, $nbJustificatifs, $idVisiteur, $mois]);
+
+        return $db->affectedRows();
+    }
+
+    /**
+     * Change uniquement l'etat d'une fiche (cloture par le visiteur,
+     * mise en remboursement par le comptable).
+     */
+    public function changerEtat($idVisiteur, $mois, $idEtat)
+    {
+        $db = db_connect();
+
+        $sql = 'UPDATE FicheFrais SET idEtat = ?, dateModif = CURDATE()
+                WHERE idVisiteur = ? AND mois = ?';
+
+        $db->query($sql, [$idEtat, $idVisiteur, $mois]);
+
+        return $db->affectedRows();
+    }
 }

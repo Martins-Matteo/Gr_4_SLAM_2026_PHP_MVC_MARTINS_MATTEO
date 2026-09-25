@@ -44,6 +44,16 @@ echo view('templates/entete', ['titrePage' => 'Saisie des frais', 'menuActif' =>
             — cette fiche n'est plus modifiable.
         <?php endif; ?>
     </p>
+
+    <?php if ($modifiable) : ?>
+        <form method="post" action="<?= base_url('postdata') ?>"
+              onsubmit="return confirm('Clôturer cette fiche ? Vous ne pourrez plus la modifier.');">
+            <?= csrf_field() ?>
+            <input type="hidden" name="action" value="cloturerFiche">
+            <input type="hidden" name="mois" value="<?= esc($mois) ?>">
+            <button type="submit" class="bouton-secondaire">Clôturer et transmettre à la comptabilité</button>
+        </form>
+    <?php endif; ?>
 </div>
 
 <!-- =================== FRAIS FORFAITISÉS =================== -->

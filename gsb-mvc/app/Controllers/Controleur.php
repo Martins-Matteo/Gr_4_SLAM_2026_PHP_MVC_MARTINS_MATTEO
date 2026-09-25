@@ -39,10 +39,31 @@ class Controleur extends BaseController
         }
 
         // ---------- utilisateur connecte ----------
-        switch ($action) {
-            case 'deconnexion':
-                return $this->deconnexion();
+        $role = $session->get('role');
 
+        if ($action === 'deconnexion') {
+            return $this->deconnexion();
+        }
+
+        // ---------- actions reservees au visiteur medical ----------
+        $actionsVisiteur = [
+            'accueil', 'consulter', 'saisir', 'enregistrerForfait',
+            'ajouterHorsForfait', 'supprimerHorsForfait', 'cloturerFiche',
+        ];
+
+        // ---------- actions reservees au comptable ----------
+        $actionsComptable = ['comptable', 'comptableFiche', 'validerFiche', 'rembourserFiche'];
+
+        if (in_array($action, $actionsVisiteur, true) && $role !== 'visiteur') {
+            return $this->accesRefuse();
+        }
+
+        if (in_array($action, $actionsComptable, true) && $role !== 'comptable') {
+            return $this->accesRefuse();
+        }
+
+        switch ($action) {
+            // --- visiteur medical ---
             case 'consulter':
                 return $this->consulter();
 
@@ -58,7 +79,32 @@ class Controleur extends BaseController
             case 'supprimerHorsForfait':
                 return $this->supprimerHorsForfait();
 
+            case 'cloturerFiche':
+                return $this->cloturerFiche();
+
+            // --- comptable ---
+            case 'comptable':
+                return $this->comptable();
+
+            case 'comptableFiche':
+                return $this->comptableFiche();
+
+            case 'validerFiche':
+                return $this->validerFiche();
+
+            case 'rembourserFiche':
+                return $this->rembourserFiche();
+
+            // --- page d'accueil selon le role ---
             default:
+                if ($role === 'comptable') {
+                    return $this->comptable();
+                }
+
+                if ($role === 'administrateur') {
+                    return $this->accesRefuse("L'espace administrateur n'est pas encore disponible dans cette version.");
+                }
+
                 return $this->accueil();
         }
     }
@@ -111,6 +157,15 @@ class Controleur extends BaseController
             'prenom' => $utilisateur['prenom'],
             'role'   => $utilisateur['role'],
         ]);
+
+        // chaque profil arrive sur son propre espace
+        if ($utilisateur['role'] === 'comptable') {
+            return $this->comptable();
+        }
+
+        if ($utilisateur['role'] === 'administrateur') {
+            return $this->accesRefuse("L'espace administrateur n'est pas encore disponible dans cette version.");
+        }
 
         return $this->accueil();
     }
@@ -342,11 +397,171 @@ class Controleur extends BaseController
     }
 
     // =================================================================
+    // CAS D'UTILISATION : CLOTURER SA FICHE (VISITEUR)
+    // =================================================================
+
+    /**
+     * Le visiteur cloture sa fiche du mois : elle passe de l'etat
+     * "saisie en cours" (CR) a l'etat "saisie cloturee" (CL) et n'est
+     * plus modifiable. Elle devient alors visible du comptable.
+     */
+    public function cloturerFiche()
+    {
+        $idVisiteur = session()->get('id');
+        $mois       = $this->moisDemande();
+
+        $Modele = new \App\Models\Modele();
+
+        $fiche = $Modele->getFicheFrais($idVisiteur, $mois);
+
+        if ($fiche === null || $fiche['idEtat'] !== 'CR') {
+            return $this->saisir('', 'Cette fiche ne peut plus être clôturée.');
+        }
+
+        $Modele->majFiche($idVisiteur, $mois);
+        $Modele->changerEtat($idVisiteur, $mois, 'CL');
+
+        return $this->saisir('La fiche a été clôturée et transmise au service comptable.');
+    }
+
+    // =================================================================
+    // ESPACE COMPTABLE
+    // =================================================================
+
+    /**
+     * Liste des fiches de frais de tous les visiteurs, avec filtres
+     * par visiteur et par etat.
+     */
+    public function comptable($message = '', $erreur = '')
+    {
+        $Modele = new \App\Models\Modele();
+
+        $idVisiteur = (string) ($this->request->getGet('visiteur') ?? '');
+        $idEtat     = (string) ($this->request->getGet('etat') ?? '');
+
+        $donnees = [
+            'fiches'    => $Modele->getFiches($idVisiteur, $idEtat),
+            'visiteurs' => $Modele->getVisiteurs(),
+            'etats'     => $Modele->getEtats(),
+        ];
+
+        $data['resultat']   = $donnees;
+        $data['idVisiteur'] = $idVisiteur;
+        $data['idEtat']     = $idEtat;
+        $data['message']    = $message;
+        $data['erreur']     = $erreur;
+
+        return view('vueComptable', $data);
+    }
+
+    /**
+     * Detail d'une fiche de frais d'un visiteur, avec les actions
+     * de validation et de mise en remboursement.
+     */
+    public function comptableFiche($message = '', $erreur = '')
+    {
+        $idVisiteur = (string) ($this->request->getPost('visiteur') ?? $this->request->getGet('visiteur') ?? '');
+        $mois       = $this->moisDemande();
+
+        $Modele = new \App\Models\Modele();
+
+        $fiche = $Modele->getFicheFrais($idVisiteur, $mois);
+
+        if ($fiche === null) {
+            return $this->comptable('', 'Cette fiche de frais est introuvable.');
+        }
+
+        $donnees = [
+            'visiteur'      => $Modele->getVisiteur($idVisiteur),
+            'fiche'         => $fiche,
+            'lignesForfait' => $Modele->getLignesForfait($idVisiteur, $mois),
+            'lignesHors'    => $Modele->getLignesHorsForfait($idVisiteur, $mois),
+        ];
+
+        $data['resultat']   = $donnees;
+        $data['idVisiteur'] = $idVisiteur;
+        $data['mois']       = $mois;
+        $data['total']      = $this->calculerTotal($donnees['lignesForfait'], $donnees['lignesHors']);
+        $data['message']    = $message;
+        $data['erreur']     = $erreur;
+
+        return view('vueComptableFiche', $data);
+    }
+
+    /**
+     * Validation d'une fiche cloturee : le comptable enregistre le montant
+     * valide et le nombre de justificatifs retenus, la fiche passe a l'etat
+     * "validee et mise en paiement" (VA).
+     */
+    public function validerFiche()
+    {
+        $idVisiteur = (string) $this->request->getPost('visiteur');
+        $mois       = $this->moisDemande();
+
+        $montant = str_replace(',', '.', trim((string) $this->request->getPost('montantValide')));
+        $nbJust  = trim((string) $this->request->getPost('nbJustificatifs'));
+
+        $Modele = new \App\Models\Modele();
+
+        $fiche = $Modele->getFicheFrais($idVisiteur, $mois);
+
+        if ($fiche === null || $fiche['idEtat'] !== 'CL') {
+            return $this->comptableFiche('', 'Seule une fiche clôturée peut être validée.');
+        }
+
+        // controles de saisie
+        if (! is_numeric($montant) || (float) $montant < 0) {
+            return $this->comptableFiche('', 'Le montant validé doit être un nombre positif.');
+        }
+
+        if (! ctype_digit($nbJust)) {
+            return $this->comptableFiche('', 'Le nombre de justificatifs doit être un entier positif ou nul.');
+        }
+
+        $Modele->majEtatFiche($idVisiteur, $mois, 'VA', (float) $montant, (int) $nbJust);
+
+        return $this->comptableFiche('La fiche a été validée et mise en paiement.');
+    }
+
+    /**
+     * Une fiche validee passe a l'etat "remboursee" (RB) une fois le
+     * virement effectue.
+     */
+    public function rembourserFiche()
+    {
+        $idVisiteur = (string) $this->request->getPost('visiteur');
+        $mois       = $this->moisDemande();
+
+        $Modele = new \App\Models\Modele();
+
+        $fiche = $Modele->getFicheFrais($idVisiteur, $mois);
+
+        if ($fiche === null || $fiche['idEtat'] !== 'VA') {
+            return $this->comptableFiche('', 'Seule une fiche validée peut être marquée comme remboursée.');
+        }
+
+        $Modele->changerEtat($idVisiteur, $mois, 'RB');
+
+        return $this->comptableFiche('La fiche a été marquée comme remboursée.');
+    }
+
+    // =================================================================
     // PAGES DIVERSES
     // =================================================================
     public function mentions()
     {
         return view('vueMentions');
+    }
+
+    /**
+     * Page affichee lorsqu'un utilisateur demande une action qui ne
+     * correspond pas a son profil.
+     */
+    public function accesRefuse($message = "Cette page n'est pas accessible avec votre profil.")
+    {
+        $data['message'] = $message;
+
+        return view('vueMessage', $data);
     }
 
     // =================================================================
