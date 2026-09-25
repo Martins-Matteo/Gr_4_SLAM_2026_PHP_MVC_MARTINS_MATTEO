@@ -1,0 +1,303 @@
+/* =====================================================================
+   GSB - Gestion des frais
+   Feuille de style unique de l'application (charte graphique GSB)
+   Palette : #668548 vert foncé · #9EC975 vert clair · #F5E5A6 crème
+             #E09770 pêche · #C25D27 brique
+   ===================================================================== */
+
+:root {
+    --vert-fonce: #668548;
+    --vert-clair: #9EC975;
+    --creme: #F5E5A6;
+    --peche: #E09770;
+    --brique: #C25D27;
+
+    --texte: #23291d;
+    --texte-doux: #5d6552;
+    --bordure: #dfe4d6;
+    --fond: #f3f6ee;
+    --surface: #ffffff;
+
+    --succes-fond: #e8f3dd;
+    --succes-texte: #3d6222;
+    --erreur-fond: #fbeae4;
+    --erreur-texte: #a8401b;
+
+    --rayon: 10px;
+    --ombre: 0 1px 3px rgba(35, 41, 29, .08), 0 6px 18px rgba(35, 41, 29, .06);
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: "Segoe UI", Roboto, system-ui, -apple-system, Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--texte);
+    background: var(--fond);
+}
+
+/* ---------------------------------------------------------------- */
+/* En-tête commun                                                     */
+/* ---------------------------------------------------------------- */
+.entete {
+    background: var(--vert-fonce);
+    color: #fff;
+    padding: .7rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.entete .logo { height: 42px; width: auto; }
+
+.entete .titre { font-size: 1.15rem; font-weight: 600; margin: 0; }
+
+.entete .identite {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: .92rem;
+}
+
+.entete .identite .role {
+    background: rgba(255, 255, 255, .18);
+    border-radius: 999px;
+    padding: .15rem .7rem;
+    font-size: .8rem;
+    text-transform: capitalize;
+}
+
+/* ---------------------------------------------------------------- */
+/* Menu de navigation                                                 */
+/* ---------------------------------------------------------------- */
+.menu {
+    background: var(--vert-clair);
+    padding: 0 1.5rem;
+    display: flex;
+    gap: .25rem;
+    flex-wrap: wrap;
+}
+
+.menu a {
+    display: block;
+    padding: .65rem 1.1rem;
+    color: #2d3a20;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: .93rem;
+    border-bottom: 3px solid transparent;
+}
+
+.menu a:hover { background: rgba(255, 255, 255, .35); }
+
+.menu a.actif {
+    background: var(--fond);
+    border-bottom-color: var(--brique);
+    color: var(--brique);
+}
+
+/* ---------------------------------------------------------------- */
+/* Contenu                                                            */
+/* ---------------------------------------------------------------- */
+.contenu {
+    flex: 1;
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 1.6rem 1.5rem 2.5rem;
+}
+
+.carte {
+    background: var(--surface);
+    border: 1px solid var(--bordure);
+    border-radius: var(--rayon);
+    box-shadow: var(--ombre);
+    padding: 1.2rem 1.4rem;
+    margin-bottom: 1.2rem;
+}
+
+.carte h2 {
+    margin: 0 0 1rem;
+    font-size: 1.05rem;
+    color: var(--vert-fonce);
+    border-bottom: 2px solid var(--creme);
+    padding-bottom: .5rem;
+}
+
+.grille { display: flex; flex-wrap: wrap; gap: 1.2rem; }
+.grille > * { flex: 1 1 220px; }
+
+/* Indicateurs (état, total) */
+.indicateur { text-align: center; }
+.indicateur .libelle { display: block; color: var(--texte-doux); font-size: .85rem; }
+.indicateur .valeur { display: block; font-size: 1.6rem; font-weight: 700; color: var(--vert-fonce); }
+
+.etat {
+    display: inline-block;
+    padding: .2rem .8rem;
+    border-radius: 999px;
+    background: var(--creme);
+    color: #6b5713;
+    font-weight: 600;
+    font-size: .88rem;
+}
+
+/* ---------------------------------------------------------------- */
+/* Formulaires                                                        */
+/* ---------------------------------------------------------------- */
+label { display: block; font-weight: 600; font-size: .88rem; margin-bottom: .25rem; color: var(--texte-doux); }
+
+input[type=text], input[type=password], input[type=number], input[type=date], select {
+    width: 100%;
+    padding: .5rem .65rem;
+    border: 1px solid var(--bordure);
+    border-radius: 8px;
+    font: inherit;
+    background: #fff;
+    color: var(--texte);
+}
+
+input:focus, select:focus { outline: 2px solid var(--vert-clair); outline-offset: 1px; }
+input:disabled { background: #f2f2f0; color: #8d8d88; }
+
+.champ { margin-bottom: .9rem; }
+
+button, .bouton {
+    display: inline-block;
+    padding: .55rem 1.2rem;
+    border: none;
+    border-radius: 8px;
+    background: var(--vert-fonce);
+    color: #fff;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+button:hover, .bouton:hover { background: #56712f; }
+
+.bouton-secondaire { background: var(--peche); color: #46250f; }
+.bouton-secondaire:hover { background: var(--brique); color: #fff; }
+
+.bouton-discret {
+    background: transparent;
+    color: var(--brique);
+    border: 1px solid var(--brique);
+    padding: .3rem .7rem;
+    font-size: .85rem;
+}
+.bouton-discret:hover { background: var(--brique); color: #fff; }
+
+.deconnexion {
+    color: #fff;
+    text-decoration: none;
+    border: 1px solid rgba(255, 255, 255, .55);
+    border-radius: 8px;
+    padding: .3rem .8rem;
+    font-weight: 600;
+}
+.deconnexion:hover { background: rgba(255, 255, 255, .15); }
+
+/* ---------------------------------------------------------------- */
+/* Messages                                                           */
+/* ---------------------------------------------------------------- */
+.message {
+    border-radius: 8px;
+    padding: .7rem 1rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    font-size: .92rem;
+}
+.message-succes { background: var(--succes-fond); color: var(--succes-texte); border: 1px solid #b6d79a; }
+.message-erreur { background: var(--erreur-fond); color: var(--erreur-texte); border: 1px solid #e5b39f; }
+
+/* ---------------------------------------------------------------- */
+/* Tableaux                                                           */
+/* ---------------------------------------------------------------- */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .92rem;
+}
+
+thead th {
+    background: var(--vert-clair);
+    color: #2d3a20;
+    text-align: left;
+    padding: .55rem .7rem;
+    font-size: .85rem;
+    text-transform: uppercase;
+    letter-spacing: .02em;
+}
+
+tbody td { padding: .55rem .7rem; border-bottom: 1px solid var(--bordure); }
+tbody tr:nth-child(even) td { background: #fbfcf8; }
+tbody tr:hover td { background: var(--creme); }
+
+td.nombre, th.nombre { text-align: right; white-space: nowrap; }
+.vide { text-align: center; color: var(--texte-doux); font-style: italic; }
+
+/* ---------------------------------------------------------------- */
+/* Page de connexion                                                  */
+/* ---------------------------------------------------------------- */
+.page-connexion {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--vert-fonce) 0%, var(--vert-clair) 55%, var(--creme) 100%);
+    padding: 2rem 1rem;
+}
+
+.bloc-connexion {
+    background: var(--surface);
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .18);
+    padding: 2rem 2.2rem;
+    width: 100%;
+    max-width: 380px;
+    text-align: center;
+}
+
+.bloc-connexion img { height: 64px; margin-bottom: .6rem; }
+.bloc-connexion h1 { margin: 0 0 .2rem; font-size: 1.5rem; color: var(--vert-fonce); }
+.bloc-connexion p.sous-titre { margin: 0 0 1.4rem; color: var(--texte-doux); font-size: .9rem; }
+.bloc-connexion form { text-align: left; }
+.bloc-connexion button { width: 100%; margin-top: .4rem; }
+
+/* ---------------------------------------------------------------- */
+/* Pied de page                                                       */
+/* ---------------------------------------------------------------- */
+.pied {
+    background: #2d3a20;
+    color: rgba(255, 255, 255, .8);
+    text-align: center;
+    padding: .9rem 1rem;
+    font-size: .85rem;
+}
+.pied a { color: var(--creme); text-decoration: none; font-weight: 600; }
+.pied a:hover { text-decoration: underline; }
+
+/* ---------------------------------------------------------------- */
+/* Texte long (mentions légales)                                      */
+/* ---------------------------------------------------------------- */
+.texte h2 { color: var(--vert-fonce); font-size: 1.05rem; margin-top: 1.6rem; }
+.texte h3 { font-size: .95rem; margin-top: 1.1rem; }
+.texte p, .texte li { color: var(--texte-doux); }
+
+/* ---------------------------------------------------------------- */
+/* Écrans étroits                                                     */
+/* ---------------------------------------------------------------- */
+@media (max-width: 640px) {
+    .entete { flex-wrap: wrap; }
+    .entete .identite { width: 100%; margin-left: 0; justify-content: space-between; }
+    .contenu { padding: 1rem; }
+    .menu { padding: 0 .5rem; }
+}

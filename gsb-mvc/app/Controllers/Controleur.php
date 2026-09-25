@@ -256,7 +256,7 @@ class Controleur extends BaseController
         // controle de saisie : entiers positifs ou nuls
         foreach ($quantites as $idFrais => $quantite) {
             if (! ctype_digit((string) $quantite)) {
-                return $this->saisir('', 'Les quantites doivent etre des nombres entiers positifs ou nuls.');
+                return $this->saisir('', 'Les quantités doivent être des nombres entiers positifs ou nuls.');
             }
         }
 
@@ -266,7 +266,7 @@ class Controleur extends BaseController
 
         $Modele->majFiche($idVisiteur, $mois);
 
-        return $this->saisir('Les frais forfaitises ont ete enregistres.');
+        return $this->saisir('Les frais forfaitisés ont été enregistrés.');
     }
 
     /**
@@ -291,7 +291,7 @@ class Controleur extends BaseController
 
         // controle de saisie : libelle
         if ($libelle === '' || mb_strlen($libelle) > 100) {
-            return $this->saisir('', 'Le libelle est obligatoire (100 caracteres maximum).');
+            return $this->saisir('', 'Le libellé est obligatoire (100 caractères maximum).');
         }
 
         // controle de saisie : date valide, ni dans le futur, ni vieille de plus d'un an
@@ -300,18 +300,18 @@ class Controleur extends BaseController
         if ($dateSaisie === false
             || $dateSaisie > new \DateTime()
             || $dateSaisie < (new \DateTime())->modify('-1 year')) {
-            return $this->saisir('', 'La date est invalide (elle doit dater de moins d\'un an et ne pas etre dans le futur).');
+            return $this->saisir('', 'La date est invalide : elle doit dater de moins d\'un an et ne pas être dans le futur.');
         }
 
         // controle de saisie : montant numerique strictement positif
         if (! is_numeric($montant) || (float) $montant <= 0) {
-            return $this->saisir('', 'Le montant doit etre un nombre superieur a 0.');
+            return $this->saisir('', 'Le montant doit être un nombre supérieur à 0.');
         }
 
         $Modele->ajouterHorsForfait($idVisiteur, $mois, $libelle, $date, (float) $montant);
         $Modele->majFiche($idVisiteur, $mois);
 
-        return $this->saisir('Le frais hors forfait a ete ajoute.');
+        return $this->saisir('Le frais hors forfait a été ajouté.');
     }
 
     /**
@@ -338,7 +338,7 @@ class Controleur extends BaseController
             return $this->saisir('', 'Ce frais hors forfait est introuvable.');
         }
 
-        return $this->saisir('Le frais hors forfait a ete supprime.');
+        return $this->saisir('Le frais hors forfait a été supprimé.');
     }
 
     // =================================================================
