@@ -1,0 +1,743 @@
+/* ============================================================
+   Portfolio de Mattéo Martins, version 2
+   Direction : plan technique. Fond clair, encre sombre,
+   un seul accent (bleu de Prusse), une seule famille (Archivo)
+   dont on fait varier la largeur : étroite pour les titres,
+   normale pour le texte.
+   ============================================================ */
+
+@font-face {
+  font-family: 'Archivo';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  src: url('polices/archivo-latin-wdth-normal.woff2') format('woff2-variations');
+}
+@font-face {
+  font-family: 'Archivo';
+  font-style: italic;
+  font-display: swap;
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  src: url('polices/archivo-latin-wdth-italic.woff2') format('woff2-variations');
+}
+
+:root {
+  /* Couleurs */
+  --papier: #F3F4F0;        /* fond de page, papier à dessin */
+  --blanc: #FFFFFF;         /* surfaces posées sur le papier */
+  --encre: #1E2A38;         /* texte principal */
+  --graphite: #4F5B66;      /* texte secondaire */
+  --trait: #CBD2D8;         /* filets et bordures */
+  --prusse: #1C4E89;        /* accent unique : liens, cotes, boutons */
+  --prusse-fonce: #133A68;
+  --prusse-voile: #E3EBF5;  /* fonds légers (étiquettes) */
+  --bois: #8F5C33;          /* tout ce qui touche à la menuiserie et à la vie perso */
+  --bois-voile: #F1E7DC;
+
+  /* Typographie */
+  --police: 'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --etroit: 78%;            /* largeur des titres */
+
+  /* Échelle (rapport 1,25, base 17 px) */
+  --t-petit: 0.875rem;
+  --t-corps: 1.0625rem;
+  --t-4: 1.33rem;
+  --t-3: 1.66rem;
+  --t-2: clamp(1.9rem, 3.2vw, 2.4rem);
+  --t-1: clamp(3.2rem, 9vw, 6.6rem);
+
+  /* Mise en page */
+  --largeur: 72rem;
+  --gouttiere: clamp(1rem, 4vw, 2.5rem);
+  --rayon: 3px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  font-family: var(--police);
+  font-size: var(--t-corps);
+  line-height: 1.6;
+  color: var(--encre);
+  background: var(--papier);
+  -webkit-font-smoothing: antialiased;
+}
+
+img { display: block; max-width: 100%; height: auto; }
+
+a { color: var(--prusse); text-underline-offset: 0.18em; text-decoration-thickness: 1px; }
+a:hover { color: var(--prusse-fonce); text-decoration-thickness: 2px; }
+
+:focus-visible { outline: 2px solid var(--prusse); outline-offset: 3px; border-radius: 2px; }
+
+h1, h2, h3 {
+  font-stretch: var(--etroit);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+h2 { font-size: var(--t-2); word-spacing: 0.06em; }
+h3 { font-size: var(--t-4); line-height: 1.25; font-stretch: 88%; letter-spacing: 0; word-spacing: 0.08em; }
+
+p { max-width: 68ch; text-wrap: pretty; }
+
+.conteneur {
+  width: 100%;
+  max-width: var(--largeur);
+  margin-inline: auto;
+  padding-inline: var(--gouttiere);
+}
+
+.lien-evitement {
+  position: absolute; left: -999px; top: 0;
+  background: var(--encre); color: var(--blanc);
+  padding: 0.6rem 1rem; z-index: 10;
+}
+.lien-evitement:focus { left: 1rem; top: 1rem; }
+
+/* ============================================================
+   En-tête et navigation
+   ============================================================ */
+
+.entete {
+  border-bottom: 1px solid var(--trait);
+  background: var(--papier);
+}
+.entete .conteneur {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem 2rem;
+  padding-block: 1.1rem;
+}
+.entete-nom {
+  font-weight: 700;
+  font-stretch: var(--etroit);
+  font-size: 1.15rem;
+  color: var(--encre);
+  text-decoration: none;
+}
+.entete-nom:hover { color: var(--prusse); text-decoration: none; }
+
+.nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 1.6rem;
+  list-style: none;
+}
+.nav a {
+  color: var(--graphite);
+  text-decoration: none;
+  font-size: 0.97rem;
+  padding-block: 0.35rem;
+  display: inline-block;
+}
+.nav a:hover { color: var(--encre); }
+.nav a[aria-current="page"] {
+  color: var(--encre);
+  font-weight: 600;
+  box-shadow: inset 0 -2px 0 var(--prusse);
+}
+
+/* ============================================================
+   Boutons
+   ============================================================ */
+
+.actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 2rem; }
+
+.bouton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.9rem;
+  padding: 0.7rem 1.3rem;
+  border-radius: var(--rayon);
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.97rem;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid var(--prusse);
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.bouton-plein { background: var(--prusse); color: var(--blanc); }
+.bouton-plein:hover { background: var(--prusse-fonce); color: var(--blanc); text-decoration: none; }
+.bouton-contour { background: transparent; color: var(--prusse); }
+.bouton-contour:hover { background: var(--prusse-voile); text-decoration: none; }
+
+/* ============================================================
+   Accueil : présentation
+   ============================================================ */
+
+.presentation { padding-block: clamp(3rem, 8vw, 6rem) 0; }
+
+.presentation-grille {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 17rem);
+  gap: clamp(2rem, 6vw, 5rem);
+  align-items: end;
+}
+
+.presentation h1 {
+  font-size: var(--t-1);
+  font-stretch: 68%;
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+}
+
+.chapeau {
+  margin-top: 1.6rem;
+  font-size: var(--t-4);
+  line-height: 1.5;
+  color: var(--encre);
+  max-width: 36ch;
+}
+
+.statut {
+  margin-top: 1.4rem;
+  padding-left: 1rem;
+  border-left: 3px solid var(--prusse);
+  color: var(--graphite);
+  max-width: 52ch;
+}
+.statut strong { color: var(--encre); font-weight: 600; }
+
+/* Cadre photo avec repères de coupe, comme sur un plan */
+.photo {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  background: var(--blanc);
+  border: 1px solid var(--trait);
+}
+.photo img { width: 100%; height: 100%; object-fit: cover; }
+.photo::before,
+.photo::after {
+  content: "";
+  position: absolute;
+  width: 18px; height: 18px;
+  border-color: var(--prusse);
+  border-style: solid;
+}
+.photo::before { top: -8px; left: -8px; border-width: 1px 0 0 1px; }
+.photo::after { bottom: -8px; right: -8px; border-width: 0 1px 1px 0; }
+.photo-vide {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  padding: 1rem;
+  text-align: center;
+  color: var(--graphite);
+  font-size: var(--t-petit);
+}
+
+/* ============================================================
+   La cote du parcours (élément signature)
+   Une ligne de cote de dessin technique : chaque segment
+   représente une étape du parcours, les repères marquent les
+   stages.
+   ============================================================ */
+
+.cote {
+  margin-top: clamp(3rem, 7vw, 5rem);
+  padding-block: 2rem 2.4rem;
+  border-top: 1px solid var(--trait);
+}
+.cote-titre {
+  font-size: var(--t-petit);
+  color: var(--graphite);
+  margin-bottom: 1.6rem;
+}
+
+.cote-ligne {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.7fr 1.1fr;
+  list-style: none;
+}
+
+.cote-segment {
+  position: relative;
+  padding: 1.1rem 1rem 0 0;
+}
+/* Trait de cote avec flèches aux deux extrémités */
+.cote-segment::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: var(--prusse);
+  transform-origin: left center;
+}
+/* Ligne d'attache verticale au début de chaque segment */
+.cote-segment::after {
+  content: "";
+  position: absolute;
+  top: -9px; left: 0;
+  width: 1px; height: 19px;
+  background: var(--prusse);
+}
+.cote-segment:last-child .cote-fin {
+  position: absolute;
+  top: -9px; right: 0;
+  width: 1px; height: 19px;
+  background: var(--prusse);
+}
+.cote-segment.a-venir::before {
+  background: repeating-linear-gradient(90deg, var(--prusse) 0 6px, transparent 6px 11px);
+}
+
+.cote-periode {
+  display: block;
+  font-size: var(--t-petit);
+  color: var(--prusse);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.cote-etape {
+  display: block;
+  font-weight: 600;
+  font-stretch: var(--etroit);
+  font-size: 1.15rem;
+  line-height: 1.25;
+  margin-top: 0.15rem;
+}
+.cote-detail {
+  display: block;
+  color: var(--graphite);
+  font-size: var(--t-petit);
+  margin-top: 0.3rem;
+  max-width: 30ch;
+}
+
+/* Repères de stage posés sur la ligne du BTS */
+.cote-reperes {
+  list-style: none;
+  margin-top: 0.9rem;
+  display: grid;
+  gap: 0.35rem;
+}
+.cote-reperes li {
+  font-size: var(--t-petit);
+  color: var(--graphite);
+  padding-left: 1.1rem;
+  position: relative;
+}
+.cote-reperes li::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0.5em;
+  width: 7px; height: 7px;
+  border: 1px solid var(--prusse);
+  transform: rotate(45deg);
+}
+
+/* Le seul mouvement de la page : la cote se trace au chargement */
+@media (prefers-reduced-motion: no-preference) {
+  .cote-segment::before { animation: tracer 0.7s cubic-bezier(0.3, 0.7, 0.2, 1) both; }
+  .cote-segment:nth-child(2)::before { animation-delay: 0.45s; }
+  .cote-segment:nth-child(3)::before { animation-delay: 0.9s; }
+  .cote-segment:nth-child(4)::before { animation-delay: 1.35s; }
+  @keyframes tracer { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+}
+
+/* ============================================================
+   Sections génériques
+   ============================================================ */
+
+.section { padding-block: clamp(3rem, 7vw, 5rem); border-top: 1px solid var(--trait); }
+.section-tete {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem 2rem;
+  margin-bottom: 2.2rem;
+}
+.section-tete p { color: var(--graphite); }
+
+.page-tete { padding-block: clamp(3rem, 7vw, 5rem) 2rem; }
+.page-tete h1 { font-size: clamp(2.6rem, 6vw, 4.2rem); font-stretch: 70%; font-weight: 800; }
+.page-tete p { margin-top: 1rem; font-size: var(--t-4); line-height: 1.5; color: var(--graphite); max-width: 52ch; }
+
+/* ============================================================
+   Projets
+   ============================================================ */
+
+.projets-vedette { display: grid; gap: 0; }
+
+.projet-ligne {
+  display: grid;
+  grid-template-columns: minmax(0, 13rem) minmax(0, 1fr);
+  gap: 1rem 3rem;
+  padding-block: 1.8rem;
+  border-top: 1px solid var(--trait);
+}
+.projet-ligne:last-child { border-bottom: 1px solid var(--trait); }
+.projet-quand { color: var(--graphite); font-size: var(--t-petit); }
+.projet-quand strong { display: block; color: var(--encre); font-weight: 600; font-size: var(--t-corps); }
+.projet-ligne h3 { margin-bottom: 0.5rem; }
+.projet-ligne h3 a { color: var(--encre); text-decoration: none; }
+.projet-ligne h3 a:hover { color: var(--prusse); text-decoration: underline; }
+
+.technos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  list-style: none;
+  margin-top: 0.9rem;
+}
+.technos li {
+  font-size: 0.82rem;
+  padding: 0.15rem 0.55rem;
+  border-radius: var(--rayon);
+  background: var(--prusse-voile);
+  color: var(--prusse-fonce);
+}
+
+.pastille {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.1rem 0.5rem;
+  border-radius: var(--rayon);
+  border: 1px solid currentColor;
+  margin-top: 0.4rem;
+}
+.pastille-encours { color: var(--prusse); }
+.pastille-avenir { color: var(--graphite); border-style: dashed; }
+
+/* Fiche projet détaillée (page Projets d'année) */
+.fiche {
+  padding-block: 2.4rem;
+  border-top: 1px solid var(--trait);
+  scroll-margin-top: 1rem;
+}
+.fiche-tete {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.5rem 2rem;
+  align-items: start;
+  margin-bottom: 1.6rem;
+}
+.fiche-tete h2 { font-size: clamp(1.6rem, 3vw, 2.1rem); }
+.fiche-meta { color: var(--graphite); margin-top: 0.4rem; }
+.fiche-corps {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 24rem);
+  gap: 2rem 3.5rem;
+}
+.fiche h3 {
+  font-size: 1.05rem;
+  font-stretch: 100%;
+  font-weight: 600;
+  margin: 1.4rem 0 0.4rem;
+}
+.fiche h3:first-child { margin-top: 0; }
+.fiche ul.puces { padding-left: 1.2rem; max-width: 64ch; }
+.fiche ul.puces li { margin-top: 0.3rem; }
+.fiche ul.puces li::marker { color: var(--prusse); }
+
+.capture {
+  border: 1px solid var(--trait);
+  background: var(--blanc);
+  aspect-ratio: 16 / 10;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 1rem;
+  color: var(--graphite);
+  font-size: var(--t-petit);
+}
+.capture img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.capture-legende { font-size: var(--t-petit); color: var(--graphite); margin-top: 0.5rem; }
+
+.liens-projet { display: flex; flex-wrap: wrap; gap: 0.5rem 1.4rem; margin-top: 1.2rem; list-style: none; }
+
+/* ============================================================
+   Parcours
+   ============================================================ */
+
+.frise { list-style: none; }
+.frise-item {
+  display: grid;
+  grid-template-columns: minmax(0, 11rem) minmax(0, 1fr);
+  gap: 0.5rem 3rem;
+  padding-block: 1.8rem;
+  border-top: 1px solid var(--trait);
+}
+.frise-item:last-child { border-bottom: 1px solid var(--trait); }
+.frise-date { color: var(--prusse); font-weight: 600; font-variant-numeric: tabular-nums; }
+.frise-date span { display: block; color: var(--graphite); font-weight: 400; font-size: var(--t-petit); }
+.frise-item h3 { margin-bottom: 0.2rem; }
+.frise-lieu { color: var(--graphite); margin-bottom: 0.7rem; }
+.frise-item ul { padding-left: 1.2rem; max-width: 64ch; }
+.frise-item ul li { margin-top: 0.3rem; }
+.frise-item ul li::marker { color: var(--prusse); }
+
+.interets { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 1.6rem 3rem; }
+.interets h3 { font-size: 1.1rem; margin-bottom: 0.3rem; }
+.interets p { color: var(--graphite); }
+
+/* ============================================================
+   Compétences
+   ============================================================ */
+
+.competences { display: grid; gap: 2.8rem; }
+.competences h2 { font-size: var(--t-3); margin-bottom: 0.9rem; }
+
+.tableau { width: 100%; border-collapse: collapse; }
+.tableau th,
+.tableau td {
+  text-align: left;
+  vertical-align: top;
+  padding: 0.75rem 1rem 0.75rem 0;
+  border-top: 1px solid var(--trait);
+}
+.tableau thead th {
+  font-size: var(--t-petit);
+  font-weight: 500;
+  color: var(--graphite);
+  border-top: 0;
+  padding-bottom: 0.4rem;
+}
+.tableau tbody th { font-weight: 600; width: 26%; }
+.tableau td:last-child { width: 20%; white-space: nowrap; }
+.tableau td { color: var(--graphite); }
+
+.niveau { font-size: var(--t-petit); font-weight: 600; color: var(--encre); }
+.niveau::before {
+  content: "";
+  display: inline-block;
+  width: 0.55rem; height: 0.55rem;
+  margin-right: 0.45rem;
+  border: 1px solid var(--prusse);
+  vertical-align: 0.05em;
+}
+.niveau-pratique::before { background: var(--prusse); }
+.niveau-bases::before { background: linear-gradient(90deg, var(--prusse) 50%, transparent 50%); }
+
+/* ============================================================
+   Contact
+   ============================================================ */
+
+.contact-bloc {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 2.5rem 4rem;
+  align-items: start;
+}
+.courriel {
+  font-size: clamp(1.25rem, 3.4vw, 2rem);
+  font-weight: 700;
+  font-stretch: var(--etroit);
+  overflow-wrap: anywhere;
+}
+.courriel a { color: var(--encre); }
+.courriel a:hover { color: var(--prusse); }
+.copie-retour { font-size: var(--t-petit); color: var(--graphite); min-height: 1.4em; margin-top: 0.4rem; }
+
+.liste-liens { list-style: none; }
+.liste-liens li { padding-block: 0.85rem; border-top: 1px solid var(--trait); display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.liste-liens li:last-child { border-bottom: 1px solid var(--trait); }
+.liste-liens span { color: var(--graphite); }
+
+.bandeau-contact { background: var(--encre); color: var(--papier); }
+.bandeau-contact .conteneur {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem 3rem;
+  padding-block: clamp(2.5rem, 6vw, 4rem);
+}
+.bandeau-contact h2 { color: var(--blanc); }
+.bandeau-contact p { color: #B9C3CD; margin-top: 0.4rem; }
+.bandeau-contact .bouton-plein { background: var(--blanc); color: var(--encre); border-color: var(--blanc); }
+.bandeau-contact .bouton-plein:hover { background: var(--prusse-voile); }
+.bandeau-contact :focus-visible { outline-color: var(--blanc); }
+
+/* ============================================================
+   Pied de page
+   ============================================================ */
+
+.pied { border-top: 1px solid var(--trait); }
+.pied .conteneur {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.8rem 2rem;
+  padding-block: 1.6rem;
+  font-size: var(--t-petit);
+  color: var(--graphite);
+}
+.pied ul { display: flex; gap: 1.4rem; list-style: none; }
+
+/* ============================================================
+   Emplacements à compléter (à supprimer avant publication)
+   Bien visibles exprès, pour ne pas en oublier.
+   ============================================================ */
+
+.a-completer {
+  background: #FFF4C2;
+  outline: 1px dashed #B08900;
+  color: #5C4700;
+  padding: 0 0.3em;
+  border-radius: 2px;
+}
+
+/* ============================================================
+   Mobile
+   ============================================================ */
+
+@media (max-width: 760px) {
+  .presentation-grille { grid-template-columns: 1fr; }
+  .photo { max-width: 13rem; order: -1; }
+  .cote-ligne { grid-template-columns: 1fr; gap: 1.6rem; }
+  .cote-segment:last-child .cote-fin { display: none; }
+  .projet-ligne,
+  .frise-item,
+  .fiche-corps,
+  .contact-bloc { grid-template-columns: 1fr; }
+  .fiche-tete { grid-template-columns: 1fr; }
+  .tableau td:last-child { white-space: normal; }
+  .tableau thead { display: none; }
+  .tableau tr { display: block; border-top: 1px solid var(--trait); padding-block: 0.7rem; }
+  .tableau th, .tableau td { display: block; border: 0; padding: 0.1rem 0; width: auto !important; }
+}
+
+@media print {
+  .entete .nav, .bandeau-contact, .actions { display: none; }
+  body { background: #fff; }
+}
+
+/* ============================================================
+   Piste B : du plan de menuiserie au plan d'architecture
+   Le bois marque le passé (menuiserie) et la vie perso,
+   le bleu de Prusse marque l'informatique.
+   ============================================================ */
+
+.cote-segment.bois::before,
+.cote-segment.bois::after { background: var(--bois); }
+.cote-segment.bois .cote-periode { color: var(--bois); }
+
+.accroche {
+  margin-top: 1.4rem;
+  font-size: var(--t-3);
+  line-height: 1.35;
+  font-stretch: 88%;
+  font-weight: 500;
+  max-width: 30ch;
+}
+.accroche .passe { color: var(--bois); }
+.accroche .present { color: var(--prusse); }
+.sous-accroche { margin-top: 1rem; color: var(--graphite); max-width: 52ch; }
+
+/* Section « Qui je suis » */
+.qui {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 20rem);
+  gap: 2.5rem 4rem;
+  align-items: start;
+}
+.qui-texte p + p { margin-top: 1.1rem; }
+.qui-texte p { font-size: 1.1rem; line-height: 1.7; }
+.qui-cote {
+  border-left: 1px solid var(--bois);
+  padding-left: 1.4rem;
+}
+.qui-cote h3 { font-size: 1.05rem; color: var(--bois); margin-bottom: 0.8rem; }
+.qui-cote dl { display: grid; gap: 0.9rem; }
+.qui-cote dt { font-weight: 600; }
+.qui-cote dd { color: var(--graphite); font-size: 0.97rem; }
+
+/* Bloc perso (page Parcours) */
+.perso {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+  gap: 2rem 3rem;
+}
+.perso article { border-top: 2px solid var(--bois); padding-top: 1rem; }
+.perso h3 { font-size: 1.2rem; margin-bottom: 0.5rem; }
+.perso p { color: var(--encre); }
+.perso ul { padding-left: 1.2rem; margin-top: 0.6rem; color: var(--graphite); }
+.perso ul li::marker { color: var(--bois); }
+.photo-perso {
+  margin-top: 1rem;
+  aspect-ratio: 3 / 2;
+  border: 1px dashed var(--bois);
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 1rem;
+  font-size: var(--t-petit);
+}
+
+.citation {
+  border-left: 3px solid var(--prusse);
+  padding: 0.2rem 0 0.2rem 1.1rem;
+  margin: 1.2rem 0;
+  font-size: 1.1rem;
+  max-width: 62ch;
+}
+
+/* Schéma d'architecture d'un projet */
+.diagramme {
+  margin-top: 1.6rem;
+  background: var(--blanc);
+  border: 1px solid var(--trait);
+  padding: 1.2rem;
+}
+.diagramme svg { width: 100%; height: auto; }
+.diagramme figcaption { font-size: var(--t-petit); color: var(--graphite); margin-top: 0.6rem; }
+
+@media (max-width: 760px) {
+  .qui { grid-template-columns: 1fr; }
+}
+
+/* ============================================================
+   Page Compétences (version lisible)
+   ============================================================ */
+
+.comp-bloc + .comp-bloc { margin-top: clamp(3rem, 6vw, 4.5rem); }
+.comp-bloc > h2 { font-size: var(--t-3); }
+.comp-bloc > .comp-intro { color: var(--graphite); margin-top: 0.4rem; margin-bottom: 1.6rem; }
+
+.comp-grille {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15.5rem, 1fr));
+  gap: 2rem 2.5rem;
+  list-style: none;
+}
+.comp-grille li { border-top: 2px solid var(--prusse); padding-top: 0.9rem; }
+.comp-grille.apprend li { border-top: 1px solid var(--trait); }
+.comp-grille.humain li { border-top-color: var(--bois); }
+.comp-nom {
+  display: block;
+  font-size: 1.3rem;
+  font-weight: 700;
+  font-stretch: 85%;
+  line-height: 1.2;
+}
+.comp-ou { display: block; color: var(--graphite); margin-top: 0.35rem; font-size: 0.97rem; }
+.comp-ou strong { color: var(--encre); font-weight: 600; }
+
+/* Captures d'écran des projets */
+.capture-image { display: block; padding: 0; aspect-ratio: auto; overflow: hidden; max-height: 22rem; }
+.capture-image img { width: 100%; height: auto; display: block; }
+.capture-image:hover { border-color: var(--prusse); }
+.galerie {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+.galerie a { display: block; border: 1px solid var(--trait); background: var(--blanc); aspect-ratio: 16 / 10; overflow: hidden; }
+.galerie a:hover { border-color: var(--prusse); }
+.galerie img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.galerie figcaption { font-size: var(--t-petit); color: var(--graphite); margin-top: 0.5rem; }
