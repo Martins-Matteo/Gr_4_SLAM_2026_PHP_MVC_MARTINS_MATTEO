@@ -13,13 +13,22 @@ echo view('templates/entete', ['titrePage' => 'Mes frais', 'menuActif' => 'consu
     <form method="get" action="<?= base_url('getdata') ?>" class="champ">
         <input type="hidden" name="action" value="consulter">
         <label for="mois">Période</label>
+        <?php
+        // le mois consulte doit toujours figurer dans la liste deroulante,
+        // meme si aucune fiche n'existe encore pour ce mois : sinon le menu
+        // afficherait un mois different de celui reellement affiche
+        $moisOptions = array_column($moisListe, 'mois');
+
+        if (! in_array($mois, $moisOptions, true)) {
+            $moisOptions[] = $mois;
+        }
+
+        rsort($moisOptions);
+        ?>
         <select id="mois" name="mois" onchange="this.form.submit()">
-            <?php if (empty($moisListe)) : ?>
-                <option value="<?= esc($mois) ?>"><?= esc(substr($mois, 4, 2) . '/' . substr($mois, 0, 4)) ?></option>
-            <?php endif; ?>
-            <?php foreach ($moisListe as $ligne) : ?>
-                <option value="<?= esc($ligne['mois']) ?>" <?= $ligne['mois'] === $mois ? 'selected' : '' ?>>
-                    <?= esc(substr($ligne['mois'], 4, 2) . '/' . substr($ligne['mois'], 0, 4)) ?>
+            <?php foreach ($moisOptions as $unMois) : ?>
+                <option value="<?= esc($unMois) ?>" <?= $unMois === $mois ? 'selected' : '' ?>>
+                    <?= esc(substr($unMois, 4, 2) . '/' . substr($unMois, 0, 4)) ?>
                 </option>
             <?php endforeach; ?>
         </select>
